@@ -51,7 +51,7 @@ header .titulo { flex: 1; }
 @media (hover: none) and (pointer: coarse) {
   .splash-body {
     background-image: url('./fundo1ia.jpeg');
-    background-position: center bottom;
+    background-position: center 70%;
     background-color: #12235a;
     align-items: flex-end;
   }
