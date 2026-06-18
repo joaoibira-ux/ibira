@@ -3,16 +3,16 @@
   "short_name": "ERP",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1a3322",
-  "theme_color": "#1a3322",
+  "background_color": "#1a3a8f",
+  "theme_color": "#1a3a8f",
   "icons": [
     {
-      "src": "./logoibira.png",
+      "src": "./icone.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./logoibira.png",
+      "src": "./icone.png",
       "sizes": "512x512",
       "type": "image/png"
     }
