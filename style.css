@@ -51,7 +51,17 @@ header .titulo { flex: 1; }
 @media (hover: none) and (pointer: coarse) {
   .splash-body {
     background-image: url('./fundo1ia.jpeg');
+    align-items: flex-end;
   }
+  .splash {
+    align-items: flex-end;
+    text-align: right;
+    padding-right: 28px;
+    padding-left: 0;
+  }
+  .splash-titulo { color: #1a3a8f; text-shadow: 0 1px 4px rgba(255,255,255,0.8); }
+  .splash-subtitulo { color: #1a3a8f; text-shadow: 0 1px 3px rgba(255,255,255,0.8); }
+  .btn-entrar { align-self: flex-end; }
 }
 
 .splash-logo {
