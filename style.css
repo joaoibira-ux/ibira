@@ -98,7 +98,9 @@ header .titulo { flex: 1; }
   right: 0;
   text-align: center;
   font-size: 0.7rem;
-  color: #90a4ae;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  font-weight: 600;
 }
 
 /* ---- Menu inicial ---- */
