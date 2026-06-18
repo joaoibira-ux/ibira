@@ -48,6 +48,12 @@ header .titulo { flex: 1; }
   justify-content: center;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .splash-body {
+    background-image: url('./fundo1ia.jpeg');
+  }
+}
+
 .splash-logo {
   width: 280px;
   height: 280px;
