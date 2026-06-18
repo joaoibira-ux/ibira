@@ -1,20 +1,26 @@
+const colPedidos = db.collection("pedidos");
+const colProdutos = db.collection("produtos");
+const colClientes2 = db.collection("clientes");
 let clientesCache = [];
 let produtosCache = [];
 
-async function carregar() {
-  const [pedidos, clientes, produtos] = await Promise.all([
-    fetch("/api/pedidos").then(r => r.json()),
-    fetch("/api/clientes").then(r => r.json()),
-    fetch("/api/produtos").then(r => r.json())
-  ]);
-  clientesCache = clientes;
-  produtosCache = produtos;
+colClientes2.orderBy("nome").onSnapshot(snap => {
+  clientesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+});
+
+colProdutos.orderBy("nome").onSnapshot(snap => {
+  produtosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+});
+
+colPedidos.orderBy("criadoEm", "desc").onSnapshot(snap => {
+  const pedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   render(pedidos);
-}
+});
 
 function fmtData(criadoEm) {
   if (!criadoEm) return "";
-  const [data, hora] = criadoEm.split(" ");
+  if (criadoEm.toDate) criadoEm = criadoEm.toDate().toISOString().replace("T", " ");
+  const [data, hora] = String(criadoEm).split(" ");
   const [ano, mes, dia] = data.split("-");
   return `${dia}/${mes}/${ano} ${hora ? hora.substring(0, 5) : ""}`;
 }
@@ -29,7 +35,7 @@ function render(pedidos) {
 
   lista.innerHTML = pedidos.map(p => {
     const statusClasse = p.status === "Entregue" ? "entregue" : "pendente";
-    const itensHtml = p.itens.map(i => `
+    const itensHtml = (p.itens || []).map(i => `
       <div class="pedido-item-linha">
         <span>${escHtml(i.produto_nome)} x ${i.quantidade}</span>
         <span>${fmtMoeda(i.subtotal)}</span>
@@ -37,17 +43,18 @@ function render(pedidos) {
     `).join("");
 
     const pagamentoTexto = p.pagamento === "avista" ? "À vista" : p.pagamento === "receber" ? "A receber" : "";
+    const pagStr = p.pagamento ? `'${p.pagamento}'` : "null";
 
     return `
       <div class="card">
         <div class="card-acoes">
-          <button class="btn-del" onclick="excluirPedido(${p.id})">🗑️</button>
+          <button class="btn-del" onclick="excluirPedido('${p.id}')">🗑️</button>
         </div>
         <div class="card-nome">
           ${escHtml(p.cliente_nome)}
-          <button class="badge-status ${statusClasse}" onclick="toggleStatus(${p.id}, '${p.status}', ${p.pagamento ? `'${p.pagamento}'` : "null"})">${escHtml(p.status)}</button>
+          <button class="badge-status ${statusClasse}" onclick="toggleStatus('${p.id}', '${p.status}', ${pagStr})">${escHtml(p.status)}</button>
         </div>
-        <div class="card-meta">${fmtData(p.criado_em)}${pagamentoTexto ? ` · ${pagamentoTexto}` : ""}</div>
+        <div class="card-meta">${fmtData(p.criadoEm)}${pagamentoTexto ? ` · ${pagamentoTexto}` : ""}</div>
         <div class="pedido-itens">${itensHtml}</div>
         <div class="pedido-total">Total: ${fmtMoeda(p.total)}</div>
         ${p.observacoes ? `<div class="card-obs">${escHtml(p.observacoes)}</div>` : ""}
@@ -114,68 +121,106 @@ function fecharFormulario() {
 
 async function salvarPedido() {
   const clienteId = document.getElementById("f-cliente").value;
-  if (!clienteId) {
-    alert("Cadastre um cliente antes de criar um pedido");
-    return;
-  }
+  if (!clienteId) { alert("Cadastre um cliente antes de criar um pedido"); return; }
 
-  const itens = [];
+  const itensSelecionados = [];
   document.querySelectorAll("#itens-container .form-item-row").forEach(linha => {
     const produtoId = linha.querySelector(".item-produto").value;
     const quantidade = parseFloat(linha.querySelector(".item-qtd").value) || 0;
     if (produtoId && quantidade > 0) {
-      itens.push({ produto_id: Number(produtoId), quantidade });
+      const prod = produtosCache.find(p => p.id === produtoId);
+      if (prod) {
+        itensSelecionados.push({
+          produto_id: produtoId,
+          produto_nome: prod.nome,
+          ud: prod.ud || null,
+          valor_unitario: prod.valor,
+          quantidade,
+          subtotal: prod.valor * quantidade
+        });
+      }
     }
   });
 
-  if (itens.length === 0) {
-    alert("Inclua ao menos um item com quantidade maior que zero");
-    return;
-  }
+  if (itensSelecionados.length === 0) { alert("Inclua ao menos um item com quantidade maior que zero"); return; }
 
-  const res = await fetch("/api/pedidos", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      cliente_id: Number(clienteId),
-      observacoes: document.getElementById("f-obs").value.trim(),
-      itens
-    })
+  const cliente = clientesCache.find(c => c.id === clienteId);
+  if (!cliente) { alert("Cliente não encontrado"); return; }
+
+  const total = itensSelecionados.reduce((s, i) => s + i.subtotal, 0);
+
+  const batch = db.batch();
+  const pedidoRef = colPedidos.doc();
+  batch.set(pedidoRef, {
+    cliente_id: clienteId,
+    cliente_nome: cliente.nome,
+    status: "Pendente",
+    total,
+    observacoes: document.getElementById("f-obs").value.trim() || null,
+    itens: itensSelecionados,
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  if (!res.ok) {
-    const erro = await res.json().catch(() => ({}));
-    alert(erro.erro || "Erro ao salvar pedido");
-    return;
-  }
+  itensSelecionados.forEach(item => {
+    batch.update(colProdutos.doc(item.produto_id), {
+      estoque: firebase.firestore.FieldValue.increment(-item.quantidade)
+    });
+  });
 
+  await batch.commit();
   fecharFormulario();
-  carregar();
 }
 
 async function toggleStatus(id, statusAtual, pagamentoAtual) {
   const novoStatus = statusAtual === "Entregue" ? "Pendente" : "Entregue";
-  const body = { status: novoStatus };
 
   if (novoStatus === "Entregue" && !pagamentoAtual) {
-    body.pagamento = await perguntarEscolha("Pagamento do pedido", [
+    const pagamento = await perguntarEscolha("Pagamento do pedido", [
       { label: "À vista", value: "avista" },
       { label: "A receber", value: "receber" }
     ]);
-  }
 
-  await fetch(`/api/pedidos/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  carregar();
+    const pedidoSnap = await colPedidos.doc(id).get();
+    const pedido = pedidoSnap.data();
+    const batch = db.batch();
+    batch.update(colPedidos.doc(id), { status: novoStatus, pagamento });
+
+    if (pagamento === "avista") {
+      const lancRef = db.collection("caixaLancamentos").doc();
+      batch.set(lancRef, {
+        data: hoje(),
+        descricao: `Pedido: ${pedido.cliente_nome}`,
+        tipo: "entrada",
+        valor: pedido.total,
+        origem: "pedido",
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      const recRef = db.collection("contasReceber").doc();
+      batch.set(recRef, {
+        pedido_id: id,
+        descricao: `Pedido: ${pedido.cliente_nome}`,
+        valor: pedido.total,
+        status: "Pendente",
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    await batch.commit();
+  } else {
+    await colPedidos.doc(id).update({ status: novoStatus });
+  }
 }
 
 async function excluirPedido(id) {
   if (!confirm("Excluir este pedido? O estoque dos produtos será devolvido.")) return;
-  await fetch(`/api/pedidos/${id}`, { method: "DELETE" });
-  carregar();
+  const snap = await colPedidos.doc(id).get();
+  const pedido = snap.data();
+  const batch = db.batch();
+  batch.delete(colPedidos.doc(id));
+  (pedido.itens || []).forEach(item => {
+    batch.update(colProdutos.doc(item.produto_id), {
+      estoque: firebase.firestore.FieldValue.increment(item.quantidade)
+    });
+  });
+  await batch.commit();
 }
-
-carregar();

@@ -1,4 +1,4 @@
-const VERSION = "ibira-v1";
+const VERSION = "ibira-v2";
 const ASSETS = [
   "./index.html",
   "./menu.html",
@@ -10,13 +10,13 @@ const ASSETS = [
   "./areceber.html",
   "./apagar.html",
   "./style.css?v=14",
-  "./app.js?v=1",
+  "./app.js?v=2",
   "./clientes.js?v=2",
-  "./estoque.js?v=5",
+  "./estoque.js?v=2",
   "./pedidos.js?v=2",
-  "./caixa.js?v=1",
-  "./areceber.js?v=1",
-  "./apagar.js?v=1",
+  "./caixa.js?v=2",
+  "./areceber.js?v=2",
+  "./apagar.js?v=2",
   "./manifest.json",
   "./logoibira.png"
 ];
@@ -41,7 +41,8 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  if (e.request.url.includes("/api/")) return;
+  if (e.request.url.includes("firestore.googleapis.com")) return;
+  if (e.request.url.includes("firebase")) return;
   if (e.request.mode === "navigate") {
     e.respondWith(fetch(e.request).catch(() => caches.match("./index.html")));
     return;

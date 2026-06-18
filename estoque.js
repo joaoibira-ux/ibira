@@ -2,6 +2,7 @@ const API_ESTOQUE = document.currentScript.dataset.api;
 const TEM_PACOTE = API_ESTOQUE === "materiaprima";
 const TEM_COMPOSICAO = API_ESTOQUE === "produtos";
 
+const colEstoque = db.collection(API_ESTOQUE);
 let itensCache = {};
 let itemEditando = null;
 let materiaPrimaCache = [];
@@ -16,6 +17,17 @@ if (TEM_PACOTE) {
   });
 }
 
+if (TEM_COMPOSICAO) {
+  db.collection("materiaprima").orderBy("nome").onSnapshot(snap => {
+    materiaPrimaCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  });
+}
+
+colEstoque.orderBy("nome").onSnapshot(snap => {
+  const itens = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render(itens);
+});
+
 function atualizarCamposPacote() {
   const ud = document.getElementById("f-ud").value;
   document.getElementById("grupo-peso-pacote").style.display = ud === "Ud" ? "none" : "";
@@ -29,17 +41,6 @@ function recalcularValor() {
   const divisor = ud === "Ud" ? pacote : peso;
   const valor = divisor > 0 ? preco / divisor : 0;
   document.getElementById("f-valor").value = valor.toFixed(2).replace(".", ",");
-}
-
-async function carregar() {
-  const res = await fetch(`/api/${API_ESTOQUE}`);
-  const itens = await res.json();
-  render(itens);
-}
-
-async function carregarMateriaPrima() {
-  const res = await fetch("/api/materiaprima");
-  materiaPrimaCache = await res.json();
 }
 
 function criarLinhaComposicao(item) {
@@ -84,8 +85,8 @@ function render(itens) {
     return `
       <div class="card">
         <div class="card-acoes">
-          <button class="btn-edit" onclick="abrirFormulario(${i.id})">✏️</button>
-          <button class="btn-del" onclick="excluirItem(${i.id})">🗑️</button>
+          <button class="btn-edit" onclick="abrirFormulario('${i.id}')">✏️</button>
+          <button class="btn-del" onclick="excluirItem('${i.id}')">🗑️</button>
         </div>
         <div class="card-nome">${escHtml(i.nome)}</div>
         <div class="card-meta">
@@ -137,10 +138,7 @@ function fecharFormulario() {
 
 async function salvarItem() {
   const nome = document.getElementById("f-nome").value.trim();
-  if (!nome) {
-    alert("Informe o nome");
-    return;
-  }
+  if (!nome) { alert("Informe o nome"); return; }
 
   const payload = {
     nome,
@@ -158,39 +156,64 @@ async function salvarItem() {
   if (TEM_COMPOSICAO) {
     payload.composicao = [];
     document.querySelectorAll("#composicao-container .form-item-row").forEach(linha => {
-      const materiaprimaId = Number(linha.querySelector(".comp-materiaprima").value);
+      const materiaprimaId = linha.querySelector(".comp-materiaprima").value;
       const quantidade = parseFloat(linha.querySelector(".comp-qtd").value) || 0;
       if (materiaprimaId && quantidade > 0) {
-        payload.composicao.push({ materiaprima_id: materiaprimaId, quantidade });
+        const mp = materiaPrimaCache.find(m => m.id === materiaprimaId);
+        payload.composicao.push({
+          materiaprima_id: materiaprimaId,
+          materiaprima_nome: mp ? mp.nome : "",
+          ud: mp ? mp.ud : null,
+          quantidade
+        });
       }
     });
   }
 
+  let pagamento = null;
   if (TEM_PACOTE && !itemEditando && payload.preco_pacote > 0) {
-    payload.pagamento = await perguntarEscolha("Pagamento da compra", [
+    pagamento = await perguntarEscolha("Pagamento da compra", [
       { label: "À vista", value: "avista" },
       { label: "A pagar", value: "apagar" }
     ]);
   }
 
-  const url = itemEditando ? `/api/${API_ESTOQUE}/${itemEditando}` : `/api/${API_ESTOQUE}`;
-  const method = itemEditando ? "PUT" : "POST";
+  if (itemEditando) {
+    await colEstoque.doc(itemEditando).update(payload);
+  } else {
+    payload.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
+    const docRef = await colEstoque.add(payload);
 
-  await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+    if (TEM_PACOTE && payload.preco_pacote > 0) {
+      const batch = db.batch();
+      if (pagamento === "avista") {
+        const lancRef = db.collection("caixaLancamentos").doc();
+        batch.set(lancRef, {
+          data: hoje(),
+          descricao: `Compra: ${nome}`,
+          tipo: "saida",
+          valor: payload.preco_pacote,
+          origem: "materiaprima",
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } else if (pagamento === "apagar") {
+        const pagarRef = db.collection("contasPagar").doc();
+        batch.set(pagarRef, {
+          materiaprima_id: docRef.id,
+          descricao: `Compra: ${nome}`,
+          valor: payload.preco_pacote,
+          status: "Pendente",
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      await batch.commit();
+    }
+  }
 
   fecharFormulario();
-  carregar();
 }
 
 async function excluirItem(id) {
   if (!confirm("Excluir este item?")) return;
-  await fetch(`/api/${API_ESTOQUE}/${id}`, { method: "DELETE" });
-  carregar();
+  await colEstoque.doc(id).delete();
 }
-
-if (TEM_COMPOSICAO) carregarMateriaPrima().then(carregar);
-else carregar();
