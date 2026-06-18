@@ -110,9 +110,7 @@ header .titulo { flex: 1; }
 .splash-versao {
   position: fixed;
   bottom: max(12px, env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
-  text-align: center;
+  right: 14px;
   font-size: 0.7rem;
   color: #ffffff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.6);
