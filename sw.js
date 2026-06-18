@@ -1,4 +1,4 @@
-﻿const VERSION = "ibira-v3";
+﻿const VERSION = "ibira-v4";
 const ASSETS = [
   "./index.html",
   "./menu.html",
@@ -9,7 +9,7 @@ const ASSETS = [
   "./caixa.html",
   "./areceber.html",
   "./apagar.html",
-  "./style.css?v=15",
+  "./style.css?v=16",
   "./app.js?v=2",
   "./clientes.js?v=2",
   "./estoque.js?v=2",
@@ -18,7 +18,8 @@ const ASSETS = [
   "./areceber.js?v=2",
   "./apagar.js?v=2",
   "./manifest.json",
-  "./logoibira.png"
+  "./logoibira.png",
+  "./fundo1.png"
 ];
 
 self.addEventListener("install", e => {

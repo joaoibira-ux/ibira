@@ -43,7 +43,7 @@ header .titulo { flex: 1; }
 
 /* ---- Tela de abertura ---- */
 .splash-body {
-  background: #ffffff;
+  background: #ffffff url('./fundo1.png') center center / cover no-repeat;
   align-items: center;
   justify-content: center;
 }
