@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="IBIRÁ" />
+  <title>IBIRÁ - Menu</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./style.css?v=14" />
+</head>
+<body class="menu-body">
+
+<div class="menu-header">
+  <img src="./logoibira.png" alt="IBIRÁ" class="menu-logo" onerror="this.style.display='none'" />
+  <div class="menu-title-block">
+    <div class="menu-title">IBIRÁ</div>
+    <div class="menu-erp">ERP</div>
+    <div class="menu-sub">SISTEMA DE GESTÃO</div>
+  </div>
+  <span id="versao-app" class="header-versao"></span>
+</div>
+
+<div class="apps-grid">
+  <a class="app-card" href="./clientes.html">
+    <span class="app-icon">👤</span>
+    <div>
+      <div class="app-name">Clientes</div>
+      <div class="app-desc">Cadastro de clientes</div>
+    </div>
+  </a>
+  <a class="app-card" href="./materiaprima.html">
+    <span class="app-icon">📦</span>
+    <div>
+      <div class="app-name">Matéria-Prima</div>
+      <div class="app-desc">Estoque de insumos</div>
+    </div>
+  </a>
+  <a class="app-card" href="./produtos.html">
+    <span class="app-icon">🏷️</span>
+    <div>
+      <div class="app-name">Produtos</div>
+      <div class="app-desc">Catálogo e composição</div>
+    </div>
+  </a>
+  <a class="app-card" href="./pedidos.html">
+    <span class="app-icon">🧾</span>
+    <div>
+      <div class="app-name">Pedidos</div>
+      <div class="app-desc">Vendas e encomendas</div>
+    </div>
+  </a>
+  <a class="app-card" href="./caixa.html">
+    <span class="app-icon">💰</span>
+    <div>
+      <div class="app-name">Caixa</div>
+      <div class="app-desc">Saldo e lançamentos</div>
+    </div>
+  </a>
+  <a class="app-card" href="./areceber.html">
+    <span class="app-icon">📥</span>
+    <div>
+      <div class="app-name">A Receber</div>
+      <div class="app-desc">Contas a receber</div>
+    </div>
+  </a>
+  <a class="app-card wide" href="./apagar.html">
+    <span class="app-icon">📤</span>
+    <div>
+      <div class="app-name">A Pagar</div>
+      <div class="app-desc">Contas a pagar</div>
+    </div>
+  </a>
+</div>
+
+<script src="./app.js?v=1"></script>
+</body>
+</html>
