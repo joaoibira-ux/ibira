@@ -26,8 +26,8 @@
     <form id="form" novalidate>
       <div class="form-row">
         <div class="form-group full">
-          <label>CNPJ</label>
-          <input type="text" id="f-cnpj" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" oninput="mascararCnpj(this)" onblur="buscarCnpj()" />
+          <label>CNPJ / CPF</label>
+          <input type="text" id="f-cnpj" placeholder="CNPJ ou CPF" inputmode="numeric" maxlength="18" oninput="mascararCnpjCpf(this)" onblur="buscarCnpj()" />
           <div id="cnpj-status" style="font-size:0.75rem;color:#888;margin-top:4px;min-height:16px"></div>
         </div>
       </div>
@@ -66,6 +66,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./app.js?v=3"></script>
-<script src="./clientes.js?v=4"></script>
+<script src="./clientes.js?v=5"></script>
 </body>
 </html>

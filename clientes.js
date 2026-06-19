@@ -39,12 +39,19 @@ function render(clientes) {
   }).join("");
 }
 
-function mascararCnpj(input) {
+function mascararCnpjCpf(input) {
   let v = input.value.replace(/\D/g, "").slice(0, 14);
-  if (v.length > 12) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, "$1.$2.$3/$4-$5");
-  else if (v.length > 8) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/, "$1.$2.$3/$4");
-  else if (v.length > 5) v = v.replace(/^(\d{2})(\d{3})(\d{0,3})/, "$1.$2.$3");
-  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,3})/, "$1.$2");
+  if (v.length > 11) {
+    // CNPJ: 00.000.000/0000-00
+    if (v.length > 12) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, "$1.$2.$3/$4-$5");
+    else if (v.length > 8) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/, "$1.$2.$3/$4");
+    else v = v.replace(/^(\d{2})(\d{3})(\d{0,3})/, "$1.$2.$3");
+  } else {
+    // CPF: 000.000.000-00
+    if (v.length > 9) v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})/, "$1.$2.$3-$4");
+    else if (v.length > 6) v = v.replace(/^(\d{3})(\d{3})(\d{0,3})/, "$1.$2.$3");
+    else if (v.length > 3) v = v.replace(/^(\d{3})(\d{0,3})/, "$1.$2");
+  }
   input.value = v;
 }
 

@@ -1,4 +1,4 @@
-const VERSAO_IBIRA = "1.22";
+const VERSAO_IBIRA = "1.23";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9zO5MO-lVAr6gea4t1pUuG-sC-s7stks",
