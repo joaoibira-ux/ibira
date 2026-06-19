@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -10,8 +10,94 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icone.png" />
   <link rel="stylesheet" href="./style.css?v=25" />
+  <script>
+    (function () {
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var isAndroid = /android/i.test(navigator.userAgent);
+      var isMobile = isIOS || isAndroid;
+      var isStandalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+      if (isMobile && !isStandalone) {
+        document.documentElement.dataset.aviso = isIOS ? 'ios' : 'android';
+      }
+    })();
+  </script>
+  <style>
+    html:not([data-aviso]) #aviso { display: none; }
+    html[data-aviso] .splash, html[data-aviso] .splash-versao { display: none; }
+
+    #aviso {
+      position: fixed;
+      inset: 0;
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      padding-top: max(32px, env(safe-area-inset-top));
+      text-align: center;
+      color: #fff;
+    }
+    #aviso img {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      margin-bottom: 24px;
+    }
+    #aviso h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    #aviso p {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    #aviso .passo {
+      width: 100%;
+      max-width: 320px;
+      background: #1a1a2e;
+      border-radius: 14px;
+      padding: 18px 20px;
+      text-align: left;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #ddd;
+    }
+    #aviso .passo b { color: #fff; }
+    #aviso .dica {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: #555;
+    }
+  </style>
 </head>
 <body class="splash-body">
+
+<div id="aviso">
+  <img src="./icone.png" alt="ERP" />
+  <h1>Instale o aplicativo</h1>
+  <p>Este sistema deve ser acessado pelo atalho na tela inicial, não pelo navegador.</p>
+
+  <div class="passo" id="passo-ios" style="display:none">
+    1. Toque no botão <b>Compartilhar</b> (ícone de caixa com seta ↑) na barra inferior do Safari<br>
+    2. Role para baixo e toque em <b>"Adicionar à Tela de Início"</b><br>
+    3. Toque em <b>Adicionar</b><br>
+    4. Abra o aplicativo pelo ícone criado
+  </div>
+
+  <div class="passo" id="passo-android" style="display:none">
+    1. Toque no menu <b>⋮</b> no canto superior direito do Chrome<br>
+    2. Toque em <b>"Adicionar à tela inicial"</b> ou <b>"Instalar aplicativo"</b><br>
+    3. Confirme tocando em <b>Adicionar</b><br>
+    4. Abra o aplicativo pelo ícone criado
+  </div>
+
+  <p class="dica">Após instalar, feche esta janela e abra pelo atalho.</p>
+</div>
 
 <div class="splash">
   <h1 class="splash-titulo">ERP</h1>
@@ -19,8 +105,13 @@
   <a class="btn-entrar" href="./menu.html">Entrar</a>
 </div>
 
-<span id="versao-app" class="splash-versao">v1.26</span>
+<span id="versao-app" class="splash-versao">v1.27</span>
 
+<script>
+  var aviso = document.documentElement.dataset.aviso;
+  if (aviso === 'ios') document.getElementById('passo-ios').style.display = 'block';
+  if (aviso === 'android') document.getElementById('passo-android').style.display = 'block';
+</script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./app.js?v=3"></script>
