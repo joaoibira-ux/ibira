@@ -29,6 +29,7 @@ function render(clientes) {
           <button class="btn-del" onclick="excluirCliente('${c.id}')">🗑️</button>
         </div>
         <div class="card-nome">${escHtml(c.nome)}</div>
+        ${c.cnpj ? `<div class="card-info">🏢 ${escHtml(c.cnpj)}</div>` : ""}
         ${c.telefone ? `<div class="card-info">📞 ${escHtml(c.telefone)}</div>` : ""}
         ${c.endereco ? `<div class="card-info">🏠 ${escHtml(c.endereco)}</div>` : ""}
         ${loc}
@@ -38,11 +39,46 @@ function render(clientes) {
   }).join("");
 }
 
+function mascararCnpj(input) {
+  let v = input.value.replace(/\D/g, "").slice(0, 14);
+  if (v.length > 12) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, "$1.$2.$3/$4-$5");
+  else if (v.length > 8) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/, "$1.$2.$3/$4");
+  else if (v.length > 5) v = v.replace(/^(\d{2})(\d{3})(\d{0,3})/, "$1.$2.$3");
+  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,3})/, "$1.$2");
+  input.value = v;
+}
+
+async function buscarCnpj() {
+  const cnpj = document.getElementById("f-cnpj").value.replace(/\D/g, "");
+  const status = document.getElementById("cnpj-status");
+  if (cnpj.length !== 14) return;
+
+  status.textContent = "Consultando CNPJ...";
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+    if (!res.ok) { status.textContent = "CNPJ não encontrado"; return; }
+    const d = await res.json();
+
+    const nome = d.razao_social || "";
+    const partes = [d.logradouro, d.numero, d.complemento, d.bairro, d.municipio, d.uf].filter(Boolean);
+    const endereco = partes.join(", ");
+
+    if (nome) document.getElementById("f-nome").value = nome;
+    if (endereco) document.getElementById("f-endereco").value = endereco;
+    status.textContent = "Dados preenchidos automaticamente";
+    setTimeout(() => { status.textContent = ""; }, 3000);
+  } catch {
+    status.textContent = "Erro ao consultar CNPJ";
+  }
+}
+
 function abrirFormulario(id) {
   clienteEditando = id || null;
+  document.getElementById("cnpj-status").textContent = "";
 
   if (clienteEditando) {
     const c = clientesCache[clienteEditando];
+    document.getElementById("f-cnpj").value = c.cnpj || "";
     document.getElementById("f-nome").value = c.nome || "";
     document.getElementById("f-telefone").value = c.telefone || "";
     document.getElementById("f-endereco").value = c.endereco || "";
@@ -63,6 +99,7 @@ async function salvarCliente() {
   if (!nome) { alert("Informe o nome do cliente"); return; }
 
   const payload = {
+    cnpj: document.getElementById("f-cnpj").value.trim(),
     nome,
     telefone: document.getElementById("f-telefone").value.trim(),
     endereco: document.getElementById("f-endereco").value.trim(),
