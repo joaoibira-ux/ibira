@@ -45,6 +45,13 @@
       </div>
       <div class="form-row">
         <div class="form-group full">
+          <label>CEP</label>
+          <input type="text" id="f-cep" placeholder="00000-000" inputmode="numeric" maxlength="9" oninput="mascararCep(this)" onblur="buscarCep()" />
+          <div id="cep-status" style="font-size:0.75rem;color:#888;margin-top:4px;min-height:16px"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
           <label>Endereço</label>
           <input type="text" id="f-endereco" placeholder="Rua, número, bairro, cidade" />
         </div>
@@ -66,6 +73,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./app.js?v=3"></script>
-<script src="./clientes.js?v=5"></script>
+<script src="./clientes.js?v=6"></script>
 </body>
 </html>

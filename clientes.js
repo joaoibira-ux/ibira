@@ -55,6 +55,34 @@ function mascararCnpjCpf(input) {
   input.value = v;
 }
 
+function mascararCep(input) {
+  let v = input.value.replace(/\D/g, "").slice(0, 8);
+  if (v.length > 5) v = v.replace(/^(\d{5})(\d{0,3})/, "$1-$2");
+  input.value = v;
+}
+
+async function buscarCep() {
+  const cep = document.getElementById("f-cep").value.replace(/\D/g, "");
+  const status = document.getElementById("cep-status");
+  if (cep.length !== 8) return;
+
+  status.textContent = "Consultando CEP...";
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    if (!res.ok) { status.textContent = "CEP não encontrado"; return; }
+    const d = await res.json();
+    if (d.erro) { status.textContent = "CEP não encontrado"; return; }
+
+    const partes = [d.logradouro, d.bairro, d.localidade, d.uf].filter(Boolean);
+    const endereco = partes.join(", ");
+    if (endereco) document.getElementById("f-endereco").value = endereco;
+    status.textContent = "Endereço preenchido";
+    setTimeout(() => { status.textContent = ""; }, 3000);
+  } catch {
+    status.textContent = "Erro ao consultar CEP";
+  }
+}
+
 async function buscarCnpj() {
   const cnpj = document.getElementById("f-cnpj").value.replace(/\D/g, "");
   const status = document.getElementById("cnpj-status");
@@ -82,12 +110,14 @@ async function buscarCnpj() {
 function abrirFormulario(id) {
   clienteEditando = id || null;
   document.getElementById("cnpj-status").textContent = "";
+  document.getElementById("cep-status").textContent = "";
 
   if (clienteEditando) {
     const c = clientesCache[clienteEditando];
     document.getElementById("f-cnpj").value = c.cnpj || "";
     document.getElementById("f-nome").value = c.nome || "";
     document.getElementById("f-telefone").value = c.telefone || "";
+    document.getElementById("f-cep").value = c.cep || "";
     document.getElementById("f-endereco").value = c.endereco || "";
     document.getElementById("f-obs").value = c.observacoes || "";
   } else {
@@ -109,6 +139,7 @@ async function salvarCliente() {
     cnpj: document.getElementById("f-cnpj").value.trim(),
     nome,
     telefone: document.getElementById("f-telefone").value.trim(),
+    cep: document.getElementById("f-cep").value.trim(),
     endereco: document.getElementById("f-endereco").value.trim(),
     observacoes: document.getElementById("f-obs").value.trim()
   };
