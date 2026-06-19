@@ -52,7 +52,7 @@ header .titulo { flex: 1; }
   .splash-body {
     background-image: url('./fundo1ia.jpeg');
     background-position: center 50%;
-    background-color: #12235a;
+    background-color: #000000;
     align-items: flex-end;
   }
   .splash {
