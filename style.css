@@ -202,6 +202,7 @@ body.menu-body {
   -webkit-tap-highlight-color: transparent;
 }
 .app-card:active { transform: scale(0.96); background: #e8edf8; }
+.app-card-inativo { opacity: 0.35; pointer-events: none; }
 .app-card.wide { grid-column: span 2; flex-direction: row; align-items: center; gap: 14px; }
 
 .app-icon { font-size: 1.8rem; line-height: 1; }
