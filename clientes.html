@@ -27,7 +27,7 @@
       <div class="form-row">
         <div class="form-group full">
           <label>CNPJ / CPF</label>
-          <input type="text" id="f-cnpj" placeholder="CNPJ ou CPF" inputmode="numeric" maxlength="18" oninput="mascararCnpjCpf(this)" onblur="buscarCnpj()" />
+          <input type="text" id="f-cnpj" placeholder="CNPJ ou CPF" inputmode="numeric" maxlength="18" oninput="mascararCnpjCpf(this)" onblur="buscarCnpj()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCnpj().then(()=>document.getElementById('f-nome').focus())}" />
           <div id="cnpj-status" style="font-size:0.75rem;color:#888;margin-top:4px;min-height:16px"></div>
         </div>
       </div>
@@ -73,6 +73,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./app.js?v=3"></script>
-<script src="./clientes.js?v=6"></script>
+<script src="./clientes.js?v=7"></script>
 </body>
 </html>

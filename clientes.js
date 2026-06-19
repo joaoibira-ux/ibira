@@ -99,6 +99,10 @@ async function buscarCnpj() {
     const endereco = partes.join(", ");
 
     if (nome) document.getElementById("f-nome").value = nome;
+    if (d.cep) {
+      const cepNum = d.cep.replace(/\D/g, "");
+      document.getElementById("f-cep").value = cepNum.slice(0,5) + (cepNum.length > 5 ? "-" + cepNum.slice(5) : "");
+    }
     if (endereco) document.getElementById("f-endereco").value = endereco;
     status.textContent = "Dados preenchidos automaticamente";
     setTimeout(() => { status.textContent = ""; }, 3000);
