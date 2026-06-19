@@ -1,8 +1,6 @@
 const colClientes = db.collection("clientes");
 let clientesCache = {};
 let clienteEditando = null;
-let latAtual = null;
-let lngAtual = null;
 
 colClientes.orderBy("nome").onSnapshot(snap => {
   const clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -42,9 +40,6 @@ function render(clientes) {
 
 function abrirFormulario(id) {
   clienteEditando = id || null;
-  latAtual = null;
-  lngAtual = null;
-  document.getElementById("loc-status").textContent = "";
 
   if (clienteEditando) {
     const c = clientesCache[clienteEditando];
@@ -52,54 +47,15 @@ function abrirFormulario(id) {
     document.getElementById("f-telefone").value = c.telefone || "";
     document.getElementById("f-endereco").value = c.endereco || "";
     document.getElementById("f-obs").value = c.observacoes || "";
-    if (c.latitude != null && c.longitude != null) {
-      latAtual = c.latitude;
-      lngAtual = c.longitude;
-      document.getElementById("loc-status").textContent = "Localização salva: " + latAtual.toFixed(6) + ", " + lngAtual.toFixed(6);
-    }
   } else {
     document.getElementById("form").reset();
   }
 
-  atualizarBotaoRemoverLocalizacao();
   document.getElementById("form-overlay").style.display = "flex";
-}
-
-function atualizarBotaoRemoverLocalizacao() {
-  const btn = document.getElementById("btn-remover-localizacao");
-  btn.style.display = (latAtual != null && lngAtual != null) ? "" : "none";
-}
-
-function removerLocalizacao() {
-  latAtual = null;
-  lngAtual = null;
-  document.getElementById("loc-status").textContent = "Localização removida";
-  atualizarBotaoRemoverLocalizacao();
 }
 
 function fecharFormulario() {
   document.getElementById("form-overlay").style.display = "none";
-}
-
-function capturarLocalizacao() {
-  const status = document.getElementById("loc-status");
-  if (!navigator.geolocation) {
-    status.textContent = "Geolocalização não suportada neste dispositivo";
-    return;
-  }
-  status.textContent = "Obtendo localização...";
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      latAtual = pos.coords.latitude;
-      lngAtual = pos.coords.longitude;
-      status.textContent = "Localização capturada: " + latAtual.toFixed(6) + ", " + lngAtual.toFixed(6);
-      atualizarBotaoRemoverLocalizacao();
-    },
-    err => {
-      status.textContent = "Não foi possível obter a localização (" + err.message + ")";
-    },
-    { enableHighAccuracy: true, timeout: 15000 }
-  );
 }
 
 async function salvarCliente() {
@@ -110,9 +66,7 @@ async function salvarCliente() {
     nome,
     telefone: document.getElementById("f-telefone").value.trim(),
     endereco: document.getElementById("f-endereco").value.trim(),
-    observacoes: document.getElementById("f-obs").value.trim(),
-    latitude: latAtual,
-    longitude: lngAtual
+    observacoes: document.getElementById("f-obs").value.trim()
   };
 
   if (clienteEditando) {
