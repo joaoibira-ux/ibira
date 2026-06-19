@@ -27,33 +27,33 @@
       <div class="form-row">
         <div class="form-group full">
           <label>CNPJ / CPF</label>
-          <input type="text" id="f-cnpj" placeholder="CNPJ ou CPF" inputmode="numeric" maxlength="18" oninput="mascararCnpjCpf(this)" onblur="buscarCnpj()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCnpj().then(()=>document.getElementById('f-nome').focus())}" />
+          <input type="text" id="f-cnpj" placeholder="CNPJ ou CPF" inputmode="numeric" maxlength="18" oninput="mascararCnpjCpf(this)" onblur="buscarCnpj()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCnpj().then(()=>document.getElementById('f-telefone').focus())}" />
           <div id="cnpj-status" style="font-size:0.75rem;color:#888;margin-top:4px;min-height:16px"></div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group full">
           <label>Nome *</label>
-          <input type="text" id="f-nome" placeholder="Nome do cliente" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group full">
-          <label>Telefone</label>
-          <input type="tel" id="f-telefone" placeholder="(00) 00000-0000" />
+          <input type="text" id="f-nome" placeholder="Nome do cliente" onkeydown="enterProximo(event,'f-cep')" />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group full">
           <label>CEP</label>
-          <input type="text" id="f-cep" placeholder="00000-000" inputmode="numeric" maxlength="9" oninput="mascararCep(this)" onblur="buscarCep()" />
+          <input type="text" id="f-cep" placeholder="00000-000" inputmode="numeric" maxlength="9" oninput="mascararCep(this)" onblur="buscarCep()" onkeydown="enterProximo(event,'f-endereco')" />
           <div id="cep-status" style="font-size:0.75rem;color:#888;margin-top:4px;min-height:16px"></div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group full">
           <label>Endereço</label>
-          <input type="text" id="f-endereco" placeholder="Rua, número, bairro, cidade" />
+          <input type="text" id="f-endereco" placeholder="Rua, número, bairro, cidade" onkeydown="enterProximo(event,'f-telefone')" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label>Telefone</label>
+          <input type="tel" id="f-telefone" placeholder="(00) 00000-0000" onkeydown="enterProximo(event,'f-obs')" />
         </div>
       </div>
       <div class="form-row">
@@ -73,6 +73,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./app.js?v=3"></script>
-<script src="./clientes.js?v=7"></script>
+<script src="./clientes.js?v=8"></script>
 </body>
 </html>

@@ -39,6 +39,13 @@ function render(clientes) {
   }).join("");
 }
 
+function enterProximo(event, proximoId) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById(proximoId).focus();
+  }
+}
+
 function mascararCnpjCpf(input) {
   let v = input.value.replace(/\D/g, "").slice(0, 14);
   if (v.length > 11) {
@@ -106,6 +113,7 @@ async function buscarCnpj() {
     if (endereco) document.getElementById("f-endereco").value = endereco;
     status.textContent = "Dados preenchidos automaticamente";
     setTimeout(() => { status.textContent = ""; }, 3000);
+    return true;
   } catch {
     status.textContent = "Erro ao consultar CNPJ";
   }
