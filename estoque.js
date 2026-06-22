@@ -87,8 +87,20 @@ function mostrarDetalhes(id) {
   if (!i) return;
 
   let composicaoHtml = "";
+  let valorHtml = `<div class="detalhe-linha">Valor: ${fmtMoeda(i.valor)}</div>`;
+
   if (TEM_COMPOSICAO) {
     const itensComp = i.composicao || [];
+    const precoCusto = itensComp.reduce((soma, c) => {
+      const mp = materiaPrimaCache.find(m => m.id === c.materiaprima_id);
+      return soma + (mp ? Number(mp.valor || 0) * Number(c.quantidade || 0) : 0);
+    }, 0);
+
+    valorHtml = `
+      <div class="detalhe-linha">Preço de custo: ${fmtMoeda(precoCusto)}</div>
+      <div class="detalhe-linha">Preço de venda: ${fmtMoeda(i.valor)}</div>
+    `;
+
     composicaoHtml = `
       <div class="detalhe-secao">Composição</div>
       ${itensComp.length === 0
@@ -103,7 +115,7 @@ function mostrarDetalhes(id) {
     <div class="choice-box detalhe-box">
       <div class="choice-titulo">${escHtml(i.nome)}</div>
       <div class="detalhe-linha">UD: ${escHtml(i.ud || "-")}</div>
-      <div class="detalhe-linha">Valor: ${fmtMoeda(i.valor)}</div>
+      ${valorHtml}
       <div class="detalhe-linha">Estoque: ${i.estoque}</div>
       ${composicaoHtml}
       <button type="button" class="btn-choice" id="btn-fechar-detalhe">Fechar</button>
