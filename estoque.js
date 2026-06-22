@@ -17,6 +17,15 @@ colEstoque.orderBy("nome").onSnapshot(snap => {
   render(itens);
 });
 
+document.getElementById("form").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const campos = Array.from(document.getElementById("form").querySelectorAll("input, select"))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+  const idx = campos.indexOf(document.activeElement);
+  if (idx > -1 && idx < campos.length - 1) campos[idx + 1].focus();
+});
+
 function criarLinhaComposicao(item) {
   const opcoes = materiaPrimaCache.map(mp =>
     `<option value="${mp.id}">${escHtml(mp.nome)} (${escHtml(mp.ud || "-")})</option>`
