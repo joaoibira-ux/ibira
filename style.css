@@ -119,6 +119,17 @@ header .titulo { flex: 1; }
   font-weight: 600;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .btn-entrar {
+    margin-top: 60px;
+    font-size: 1.3rem;
+    padding: 20px 64px;
+  }
+  .splash-versao {
+    font-size: 1.1rem;
+  }
+}
+
 /* ---- Menu inicial ---- */
 body.menu-body {
   background: #ffffff;
