@@ -1,4 +1,4 @@
-﻿const VERSION = "ibira-v33";
+﻿const VERSION = "ibira-v34";
 const ASSETS = [
   "./index.html",
   "./menu.html",

@@ -1,21 +1,10 @@
 const API_ESTOQUE = document.currentScript.dataset.api;
-const TEM_PACOTE = API_ESTOQUE === "materiaprima";
 const TEM_COMPOSICAO = API_ESTOQUE === "produtos";
 
 const colEstoque = db.collection(API_ESTOQUE);
 let itensCache = {};
 let itemEditando = null;
 let materiaPrimaCache = [];
-
-if (TEM_PACOTE) {
-  document.getElementById("f-pacote").addEventListener("input", recalcularValor);
-  document.getElementById("f-peso-pacote").addEventListener("input", recalcularValor);
-  document.getElementById("f-preco-pacote").addEventListener("input", recalcularValor);
-  document.getElementById("f-ud").addEventListener("change", () => {
-    atualizarCamposPacote();
-    recalcularValor();
-  });
-}
 
 if (TEM_COMPOSICAO) {
   db.collection("materiaprima").orderBy("nome").onSnapshot(snap => {
@@ -27,21 +16,6 @@ colEstoque.orderBy("nome").onSnapshot(snap => {
   const itens = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   render(itens);
 });
-
-function atualizarCamposPacote() {
-  const ud = document.getElementById("f-ud").value;
-  document.getElementById("grupo-peso-pacote").style.display = ud === "Ud" ? "none" : "";
-}
-
-function recalcularValor() {
-  const ud = document.getElementById("f-ud").value;
-  const pacote = parseFloat(document.getElementById("f-pacote").value) || 0;
-  const peso = parseFloat(document.getElementById("f-peso-pacote").value) || 0;
-  const preco = parseMoeda(document.getElementById("f-preco-pacote").value);
-  const divisor = ud === "Ud" ? pacote : peso;
-  const valor = divisor > 0 ? preco / divisor : 0;
-  document.getElementById("f-valor").value = valor.toFixed(2).replace(".", ",");
-}
 
 function criarLinhaComposicao(item) {
   const opcoes = materiaPrimaCache.map(mp =>
@@ -108,16 +82,9 @@ function abrirFormulario(id) {
     document.getElementById("f-ud").value = i.ud || "";
     document.getElementById("f-valor").value = String(i.valor ?? 0).replace(".", ",");
     document.getElementById("f-estoque").value = i.estoque ?? 0;
-    if (TEM_PACOTE) {
-      document.getElementById("f-pacote").value = i.pacote ?? "";
-      document.getElementById("f-peso-pacote").value = i.peso_pacote ?? "";
-      document.getElementById("f-preco-pacote").value = String(i.preco_pacote ?? 0).replace(".", ",");
-    }
   } else {
     document.getElementById("form").reset();
   }
-
-  if (TEM_PACOTE) atualizarCamposPacote();
 
   if (TEM_COMPOSICAO) {
     const container = document.getElementById("composicao-container");
@@ -147,12 +114,6 @@ async function salvarItem() {
     estoque: parseFloat(document.getElementById("f-estoque").value) || 0
   };
 
-  if (TEM_PACOTE) {
-    payload.pacote = parseFloat(document.getElementById("f-pacote").value) || null;
-    payload.peso_pacote = parseFloat(document.getElementById("f-peso-pacote").value) || null;
-    payload.preco_pacote = parseMoeda(document.getElementById("f-preco-pacote").value);
-  }
-
   if (TEM_COMPOSICAO) {
     payload.composicao = [];
     document.querySelectorAll("#composicao-container .form-item-row").forEach(linha => {
@@ -170,44 +131,11 @@ async function salvarItem() {
     });
   }
 
-  let pagamento = null;
-  if (TEM_PACOTE && !itemEditando && payload.preco_pacote > 0) {
-    pagamento = await perguntarEscolha("Pagamento da compra", [
-      { label: "À vista", value: "avista" },
-      { label: "A pagar", value: "apagar" }
-    ]);
-  }
-
   if (itemEditando) {
     await colEstoque.doc(itemEditando).update(payload);
   } else {
     payload.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
-    const docRef = await colEstoque.add(payload);
-
-    if (TEM_PACOTE && payload.preco_pacote > 0) {
-      const batch = db.batch();
-      if (pagamento === "avista") {
-        const lancRef = db.collection("caixaLancamentos").doc();
-        batch.set(lancRef, {
-          data: hoje(),
-          descricao: `Compra: ${nome}`,
-          tipo: "saida",
-          valor: payload.preco_pacote,
-          origem: "materiaprima",
-          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } else if (pagamento === "apagar") {
-        const pagarRef = db.collection("contasPagar").doc();
-        batch.set(pagarRef, {
-          materiaprima_id: docRef.id,
-          descricao: `Compra: ${nome}`,
-          valor: payload.preco_pacote,
-          status: "Pendente",
-          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-      await batch.commit();
-    }
+    await colEstoque.add(payload);
   }
 
   fecharFormulario();
