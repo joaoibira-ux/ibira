@@ -66,10 +66,10 @@ function render(itens) {
   lista.innerHTML = itens.map(i => {
     itensCache[i.id] = i;
     return `
-      <div class="card">
+      <div class="card" style="cursor:pointer" onclick="mostrarDetalhes('${i.id}')">
         <div class="card-acoes">
-          <button class="btn-edit" onclick="abrirFormulario('${i.id}')">✏️</button>
-          <button class="btn-del" onclick="excluirItem('${i.id}')">🗑️</button>
+          <button class="btn-edit" onclick="event.stopPropagation(); abrirFormulario('${i.id}')">✏️</button>
+          <button class="btn-del" onclick="event.stopPropagation(); excluirItem('${i.id}')">🗑️</button>
         </div>
         <div class="card-nome">${escHtml(i.nome)}</div>
         <div class="card-meta">
@@ -80,6 +80,38 @@ function render(itens) {
       </div>
     `;
   }).join("");
+}
+
+function mostrarDetalhes(id) {
+  const i = itensCache[id];
+  if (!i) return;
+
+  let composicaoHtml = "";
+  if (TEM_COMPOSICAO) {
+    const itensComp = i.composicao || [];
+    composicaoHtml = `
+      <div class="detalhe-secao">Composição</div>
+      ${itensComp.length === 0
+        ? '<div class="detalhe-linha">Nenhuma matéria-prima</div>'
+        : itensComp.map(c => `<div class="detalhe-linha">${escHtml(c.materiaprima_nome)} — ${c.quantidade} ${escHtml(c.ud || "")}</div>`).join("")}
+    `;
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "choice-overlay";
+  overlay.innerHTML = `
+    <div class="choice-box detalhe-box">
+      <div class="choice-titulo">${escHtml(i.nome)}</div>
+      <div class="detalhe-linha">UD: ${escHtml(i.ud || "-")}</div>
+      <div class="detalhe-linha">Valor: ${fmtMoeda(i.valor)}</div>
+      <div class="detalhe-linha">Estoque: ${i.estoque}</div>
+      ${composicaoHtml}
+      <button type="button" class="btn-choice" id="btn-fechar-detalhe">Fechar</button>
+    </div>
+  `;
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector("#btn-fechar-detalhe").addEventListener("click", () => overlay.remove());
+  document.body.appendChild(overlay);
 }
 
 function abrirFormulario(id) {

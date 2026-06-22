@@ -614,3 +614,30 @@ body.menu-body {
   background: #eee;
   color: #555;
 }
+
+.detalhe-box {
+  text-align: left;
+  max-width: 360px;
+}
+
+.detalhe-box .choice-titulo {
+  text-align: center;
+}
+
+.detalhe-linha {
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+
+.detalhe-secao {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a3a8f;
+  margin: 14px 0 6px;
+}
+
+.detalhe-box .btn-choice {
+  margin-top: 16px;
+  width: 100%;
+}
