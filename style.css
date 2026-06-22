@@ -121,12 +121,12 @@ header .titulo { flex: 1; }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-entrar {
-    margin-top: 60px;
-    font-size: 1.3rem;
-    padding: 20px 64px;
+    margin-top: 120px;
+    font-size: 1.7rem;
+    padding: 28px 88px;
   }
   .splash-versao {
-    font-size: 1.1rem;
+    font-size: 1.6rem;
   }
 }
 
