@@ -3,6 +3,7 @@ const colProdutos = db.collection("produtos");
 const colClientes2 = db.collection("clientes");
 let clientesCache = [];
 let produtosCache = [];
+let pedidosCache = {};
 
 colClientes2.orderBy("nome").onSnapshot(snap => {
   clientesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -27,6 +28,7 @@ function fmtData(criadoEm) {
 
 function render(pedidos) {
   const lista = document.getElementById("lista");
+  pedidosCache = {};
 
   if (pedidos.length === 0) {
     lista.innerHTML = '<div class="empty">Nenhum pedido cadastrado</div>';
@@ -34,6 +36,7 @@ function render(pedidos) {
   }
 
   lista.innerHTML = pedidos.map(p => {
+    pedidosCache[p.id] = p;
     const statusClasse = p.status === "Entregue" ? "entregue" : "pendente";
     const itensHtml = (p.itens || []).map(i => `
       <div class="pedido-item-linha">
@@ -46,13 +49,13 @@ function render(pedidos) {
     const pagStr = p.pagamento ? `'${p.pagamento}'` : "null";
 
     return `
-      <div class="card">
+      <div class="card" style="cursor:pointer" onclick="mostrarImpressao('${p.id}')">
         <div class="card-acoes">
-          <button class="btn-del" onclick="excluirPedido('${p.id}')">🗑️</button>
+          <button class="btn-del" onclick="event.stopPropagation(); excluirPedido('${p.id}')">🗑️</button>
         </div>
         <div class="card-nome">
           ${escHtml(p.cliente_nome)}
-          <button class="badge-status ${statusClasse}" onclick="toggleStatus('${p.id}', '${p.status}', ${pagStr})">${escHtml(p.status)}</button>
+          <button class="badge-status ${statusClasse}" onclick="event.stopPropagation(); toggleStatus('${p.id}', '${p.status}', ${pagStr})">${escHtml(p.status)}</button>
         </div>
         <div class="card-meta">${fmtData(p.criadoEm)}${pagamentoTexto ? ` · ${pagamentoTexto}` : ""}</div>
         <div class="pedido-itens">${itensHtml}</div>
@@ -61,6 +64,69 @@ function render(pedidos) {
       </div>
     `;
   }).join("");
+}
+
+function mostrarImpressao(id) {
+  const p = pedidosCache[id];
+  if (!p) return;
+
+  const itensHtml = (p.itens || []).map(i => `
+    <tr>
+      <td>${escHtml(i.produto_nome)}</td>
+      <td>${i.quantidade}</td>
+      <td>${fmtMoeda(i.valor_unitario)}</td>
+      <td>${fmtMoeda(i.subtotal)}</td>
+    </tr>
+  `).join("");
+
+  const logoUrl = new URL("./logoibira.png", window.location.href).href;
+  const janela = window.open("", "_blank");
+  janela.document.write(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Pedido - ${escHtml(p.cliente_nome)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1a1a2e; padding: 24px; }
+        .imp-cabecalho { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .imp-cabecalho img { width: 70px; height: 70px; object-fit: contain; }
+        .imp-titulo { font-size: 1.3rem; font-weight: 800; color: #1a3a8f; }
+        .imp-info { margin-bottom: 16px; font-size: 0.95rem; }
+        .imp-info strong { color: #1a3a8f; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+        th { color: #1a3a8f; }
+        td:nth-child(2), td:nth-child(3), td:nth-child(4),
+        th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: right; }
+        .imp-total { text-align: right; font-size: 1.1rem; font-weight: 700; color: #1a3a8f; }
+        .imp-obs { margin-top: 16px; font-size: 0.9rem; }
+      </style>
+    </head>
+    <body>
+      <div class="imp-cabecalho">
+        <img src="${logoUrl}" alt="IBIRÁ" onerror="this.style.display='none'" />
+        <div class="imp-titulo">Pedido</div>
+      </div>
+      <div class="imp-info">
+        <div><strong>Cliente:</strong> ${escHtml(p.cliente_nome)}</div>
+        <div><strong>Data:</strong> ${fmtData(p.criadoEm)}</div>
+        <div><strong>Status:</strong> ${escHtml(p.status)}</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>${itensHtml}</tbody>
+      </table>
+      <div class="imp-total">Total: ${fmtMoeda(p.total)}</div>
+      ${p.observacoes ? `<div class="imp-obs"><strong>Observações:</strong> ${escHtml(p.observacoes)}</div>` : ""}
+      <script>window.onload = () => window.print();</script>
+    </body>
+    </html>
+  `);
+  janela.document.close();
 }
 
 function criarLinhaItem() {
