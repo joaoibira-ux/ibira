@@ -79,7 +79,7 @@ function mostrarImpressao(id) {
     </tr>
   `).join("");
 
-  const logoUrl = new URL("./logoibira.png", window.location.href).href;
+  const logoUrl = new URL("./icone.png", window.location.href).href;
   const janela = window.open("", "_blank");
   janela.document.write(`
     <!DOCTYPE html>
