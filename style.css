@@ -121,7 +121,7 @@ header .titulo { flex: 1; }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-entrar {
-    margin-top: 190px;
+    margin-top: 250px;
     font-size: 2.1rem;
     padding: 34px 108px;
   }
