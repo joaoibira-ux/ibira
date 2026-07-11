@@ -80,6 +80,9 @@ function mostrarImpressao(id) {
   `).join("");
 
   const logoUrl = new URL("./icone.png", window.location.href).href;
+  const menuUrl = new URL("./menu.html", window.location.href).href;
+  const cliente = clientesCache.find(c => c.id === p.cliente_id);
+  const endereco = cliente && cliente.endereco ? cliente.endereco : "-";
   const janela = window.open("", "_blank");
   janela.document.write(`
     <!DOCTYPE html>
@@ -90,6 +93,9 @@ function mostrarImpressao(id) {
       <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1a1a2e; padding: 24px; }
+        .imp-nav { display: flex; gap: 8px; margin-bottom: 20px; }
+        .imp-nav button { cursor: pointer; border: 1px solid #1a3a8f; background: #fff; color: #1a3a8f; font-weight: 700; font-size: 0.85rem; padding: 8px 14px; border-radius: 6px; }
+        .imp-nav button:hover { background: #1a3a8f; color: #fff; }
         .imp-cabecalho { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
         .imp-cabecalho img { width: 70px; height: 70px; object-fit: contain; }
         .imp-titulo { font-size: 1.3rem; font-weight: 800; color: #1a3a8f; }
@@ -102,9 +108,14 @@ function mostrarImpressao(id) {
         th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: right; }
         .imp-total { text-align: right; font-size: 1.1rem; font-weight: 700; color: #1a3a8f; }
         .imp-obs { margin-top: 16px; font-size: 0.9rem; }
+        @media print { .imp-nav { display: none; } }
       </style>
     </head>
     <body>
+      <div class="imp-nav">
+        <button onclick="window.close()">← Voltar</button>
+        <button onclick="window.location.href='${menuUrl}'">🏠 Menu</button>
+      </div>
       <div class="imp-cabecalho">
         <img src="${logoUrl}" alt="IBIRÁ" onerror="this.style.display='none'" />
         <div class="imp-titulo">Pedido</div>
@@ -112,7 +123,7 @@ function mostrarImpressao(id) {
       <div class="imp-info">
         <div><strong>Cliente:</strong> ${escHtml(p.cliente_nome)}</div>
         <div><strong>Data:</strong> ${fmtData(p.criadoEm)}</div>
-        <div><strong>Status:</strong> ${escHtml(p.status)}</div>
+        <div><strong>Endereço:</strong> ${escHtml(endereco)}</div>
       </div>
       <table>
         <thead>
