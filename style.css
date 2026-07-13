@@ -642,3 +642,35 @@ body.menu-body {
   width: 100%;
 }
 
+/* ---- Menu principal maior no desktop ---- */
+@media (hover: hover) and (pointer: fine) {
+  .menu-header {
+    padding: 28px 30px;
+  }
+  .menu-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .menu-title {
+    font-size: 1.3rem;
+  }
+  .menu-erp {
+    font-size: 0.7rem;
+  }
+  .menu-sub {
+    font-size: 0.7rem;
+  }
+  .app-card {
+    padding: 30px 22px 28px;
+  }
+  .app-icon {
+    font-size: 2.4rem;
+  }
+  .app-name {
+    font-size: 1.1rem;
+  }
+  .app-desc {
+    font-size: 0.85rem;
+  }
+}
+
