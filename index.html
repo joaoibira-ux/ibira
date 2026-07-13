@@ -109,7 +109,7 @@
   <a class="btn-entrar" href="./menu.html">Entrar</a>
 </div>
 
-<span id="versao-app" class="splash-versao">v1.50</span>
+<span id="versao-app" class="splash-versao">v1.51</span>
 
 <script>
   var aviso = document.documentElement.dataset.aviso;
@@ -120,10 +120,15 @@
   if (!isMobileDevice) {
     var btnEntrar = document.querySelector('.btn-entrar');
     if (btnEntrar) {
+      var jaEntrou = false;
+      var ir = function () {
+        if (jaEntrou) return;
+        jaEntrou = true;
+        window.location.href = btnEntrar.href;
+      };
+
       btnEntrar.addEventListener('click', function (e) {
         e.preventDefault();
-        var destino = btnEntrar.href;
-        var ir = function () { window.location.href = destino; };
         var el = document.documentElement;
         if (el.requestFullscreen) {
           el.requestFullscreen().then(function () { setTimeout(ir, 1500); }).catch(ir);
@@ -131,6 +136,8 @@
           ir();
         }
       });
+
+      setTimeout(ir, 3000);
     }
   }
 </script>
