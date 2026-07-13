@@ -109,7 +109,7 @@
   <a class="btn-entrar" href="./menu.html">Entrar</a>
 </div>
 
-<span id="versao-app" class="splash-versao">v1.49</span>
+<span id="versao-app" class="splash-versao">v1.50</span>
 
 <script>
   var aviso = document.documentElement.dataset.aviso;
@@ -126,7 +126,7 @@
         var ir = function () { window.location.href = destino; };
         var el = document.documentElement;
         if (el.requestFullscreen) {
-          el.requestFullscreen().then(function () { setTimeout(ir, 500); }).catch(ir);
+          el.requestFullscreen().then(function () { setTimeout(ir, 1500); }).catch(ir);
         } else {
           ir();
         }
