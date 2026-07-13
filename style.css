@@ -661,11 +661,11 @@ body.menu-body {
     font-size: 0.7rem;
   }
   .apps-grid {
-    grid-template-columns: repeat(2, 220px);
+    grid-template-columns: repeat(2, 160px);
     justify-content: center;
   }
   .app-card {
-    padding: 46px 16px 44px;
+    padding: 68px 12px 66px;
   }
   .app-card.wide {
     grid-column: span 2;
