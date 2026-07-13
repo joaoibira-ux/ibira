@@ -660,15 +660,8 @@ body.menu-body {
   .menu-sub {
     font-size: 0.7rem;
   }
-  .apps-grid {
-    grid-template-columns: repeat(2, 220px);
-    justify-content: center;
-  }
   .app-card {
     padding: 46px 16px 44px;
-  }
-  .app-card.wide {
-    grid-column: span 2;
   }
   .app-icon {
     font-size: 2.8rem;
