@@ -642,6 +642,32 @@ body.menu-body {
   width: 100%;
 }
 
+/* ---- Romaneio ---- */
+.detalhe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.detalhe-header .btn-cancel {
+  flex: none;
+  padding: 8px 14px;
+}
+
+.detalhe-header .btn-del {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c62828;
+}
+
+.titulo-selecao {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a3a8f;
+}
+
 /* ---- Menu principal maior no desktop ---- */
 @media (hover: hover) and (pointer: fine) {
   .menu-header {

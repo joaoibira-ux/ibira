@@ -76,6 +76,7 @@ function render(itens) {
           <span>UD: ${escHtml(i.ud || "-")}</span>
           <span>Valor: ${fmtMoeda(i.valor)}</span>
           <span>Estoque: ${i.estoque}</span>
+          ${TEM_COMPOSICAO ? `<span>Peso: ${Number(i.peso || 0)} kg</span>` : ""}
         </div>
       </div>
     `;
@@ -117,6 +118,7 @@ function mostrarDetalhes(id) {
       <div class="detalhe-linha">UD: ${escHtml(i.ud || "-")}</div>
       ${valorHtml}
       <div class="detalhe-linha">Estoque: ${i.estoque}</div>
+      ${TEM_COMPOSICAO ? `<div class="detalhe-linha">Peso unitário: ${Number(i.peso || 0)} kg</div>` : ""}
       ${composicaoHtml}
       <button type="button" class="btn-choice" id="btn-fechar-detalhe">Fechar</button>
     </div>
@@ -135,6 +137,7 @@ function abrirFormulario(id) {
     document.getElementById("f-ud").value = i.ud || "";
     document.getElementById("f-valor").value = String(i.valor ?? 0).replace(".", ",");
     document.getElementById("f-estoque").value = i.estoque ?? 0;
+    if (document.getElementById("f-peso")) document.getElementById("f-peso").value = i.peso ?? 0;
   } else {
     document.getElementById("form").reset();
   }
@@ -166,6 +169,10 @@ async function salvarItem() {
     valor: parseMoeda(document.getElementById("f-valor").value),
     estoque: parseFloat(document.getElementById("f-estoque").value) || 0
   };
+
+  if (document.getElementById("f-peso")) {
+    payload.peso = parseFloat(document.getElementById("f-peso").value) || 0;
+  }
 
   if (TEM_COMPOSICAO) {
     payload.composicao = [];

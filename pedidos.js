@@ -212,6 +212,7 @@ async function salvarPedido() {
           produto_nome: prod.nome,
           ud: prod.ud || null,
           valor_unitario: prod.valor,
+          peso_unitario: prod.peso || 0,
           quantidade,
           subtotal: prod.valor * quantidade
         });
@@ -235,6 +236,7 @@ async function salvarPedido() {
     total,
     observacoes: document.getElementById("f-obs").value.trim() || null,
     itens: itensSelecionados,
+    romaneio_id: null,
     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
 
