@@ -40,6 +40,21 @@ function pedidosDoRomaneio(id) {
   return pedidosList.filter(p => p.romaneio_id === id);
 }
 
+function agruparProdutos(pedidos) {
+  const mapa = {};
+  pedidos.forEach(p => {
+    (p.itens || []).forEach(i => {
+      const chave = i.produto_id || i.produto_nome;
+      if (!mapa[chave]) {
+        mapa[chave] = { produto_nome: i.produto_nome, ud: i.ud, quantidade: 0, peso: 0 };
+      }
+      mapa[chave].quantidade += Number(i.quantidade || 0);
+      mapa[chave].peso += Number(i.peso_unitario || 0) * Number(i.quantidade || 0);
+    });
+  });
+  return Object.values(mapa).sort((a, b) => a.produto_nome.localeCompare(b.produto_nome, "pt-BR"));
+}
+
 function renderLista() {
   const lista = document.getElementById("lista");
 
@@ -134,9 +149,22 @@ function renderDetalhe() {
     </div>
   `;
 
+  const produtos = agruparProdutos(pedidosDele);
+  document.getElementById("detalhe-produtos").innerHTML = produtos.length === 0 ? "" : `
+    <div class="detalhe-secao">Produtos para carregar</div>
+    <div class="card">
+      ${produtos.map(pr => `
+        <div class="pedido-item-linha">
+          <span>${escHtml(pr.produto_nome)}${pr.ud ? ` (${escHtml(pr.ud)})` : ""}</span>
+          <span>${pr.quantidade}${pr.peso > 0 ? ` · ${fmtPeso(pr.peso)}` : ""}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
   document.getElementById("detalhe-pedidos").innerHTML = pedidosDele.length === 0
     ? '<div class="empty">Nenhum pedido neste romaneio</div>'
-    : pedidosDele.map(p => `
+    : `<div class="detalhe-secao">Pedidos incluídos</div>` + pedidosDele.map(p => `
       <div class="card">
         <div class="card-acoes">
           <button class="btn-del" onclick="removerPedidoDoRomaneio('${p.id}')">🗑️</button>
