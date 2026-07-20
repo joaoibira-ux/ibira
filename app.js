@@ -1,4 +1,4 @@
-const VERSAO_IBIRA = "1.63";
+const VERSAO_IBIRA = "1.64";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9zO5MO-lVAr6gea4t1pUuG-sC-s7stks",
@@ -33,7 +33,9 @@ if (!/iphone|ipad|ipod|android/i.test(navigator.userAgent)) {
     }
   };
   document.addEventListener("DOMContentLoaded", tentarFullscreen);
-  document.addEventListener("click", tentarFullscreen, true);
+  ["click", "touchstart", "keydown"].forEach(ev =>
+    document.addEventListener(ev, tentarFullscreen, { capture: true, passive: true })
+  );
 }
 
 function escHtml(s) {
