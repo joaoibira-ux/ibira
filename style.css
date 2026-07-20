@@ -700,6 +700,79 @@ body.menu-body {
   }
 }
 
+/* ---- Fontes maiores no desktop (todas as telas) ---- */
+@media (hover: hover) and (pointer: fine) {
+  header {
+    font-size: 1.6rem;
+    padding: 20px 28px;
+    gap: 14px;
+  }
+  .header-versao { font-size: 1rem; }
+  .btn-voltar-header { font-size: 1.2rem; }
+
+  .lista { padding: 24px 24px 100px; }
+
+  .card { padding: 22px 26px; margin-bottom: 16px; border-radius: 16px; }
+  .card-nome { font-size: 1.5rem; padding-right: 90px; margin-bottom: 10px; }
+  .card-info { font-size: 1.25rem; margin-bottom: 6px; }
+  .card-meta { font-size: 1.2rem; gap: 18px; margin-bottom: 6px; }
+  .card-obs { font-size: 1.1rem; margin-top: 10px; }
+  .card-loc { font-size: 1.1rem; margin-top: 10px; }
+  .card-acoes { top: 16px; right: 16px; gap: 10px; }
+  .btn-edit, .btn-del { font-size: 1.5rem; }
+  .empty { font-size: 1.3rem; padding: 90px 0; }
+
+  .badge-status { font-size: 1rem; padding: 4px 14px; margin-left: 10px; }
+  .pedido-itens { font-size: 1.15rem; margin: 10px 0; }
+  .pedido-total { font-size: 1.3rem; margin-top: 8px; }
+
+  .form-scroll { padding: 28px 44px max(28px, env(safe-area-inset-bottom)); }
+  .form-row { gap: 14px; margin-bottom: 14px; }
+  .form-group label { font-size: 0.95rem; margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select {
+    font-size: 1.25rem;
+    padding: 14px 16px;
+  }
+  .form-item-row {
+    grid-template-columns: 1fr 100px 46px;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .form-item-row select, .form-item-row input {
+    font-size: 1.2rem;
+    padding: 14px 16px;
+  }
+  .btn-remove-item { font-size: 1.4rem; }
+  .btn-add-item { font-size: 1.2rem; padding: 14px; }
+  .form-total { font-size: 1.3rem; margin-bottom: 12px; }
+  .btn-localizacao { font-size: 1.2rem; padding: 14px; }
+  .loc-status { font-size: 1.1rem; }
+  .form-actions { gap: 14px; margin-top: 22px; }
+  .btn-cancel, .btn-save { font-size: 1.25rem; padding: 18px; }
+
+  .fab {
+    width: 68px;
+    height: 68px;
+    font-size: 2.1rem;
+    line-height: 68px;
+  }
+
+  .saldo-card { padding: 26px; }
+  .saldo-label { font-size: 1.05rem; }
+  .saldo-valor { font-size: 2.4rem; }
+  .btn-baixa { font-size: 1.2rem; padding: 14px; }
+
+  .choice-box { max-width: 460px; padding: 30px; }
+  .choice-titulo { font-size: 1.4rem; margin-bottom: 22px; }
+  .choice-botoes { gap: 14px; }
+  .btn-choice { font-size: 1.3rem; padding: 18px; }
+  .detalhe-box { max-width: 520px; }
+  .detalhe-linha { font-size: 1.25rem; margin-bottom: 10px; }
+  .detalhe-secao { font-size: 1.2rem; margin: 20px 0 10px; }
+
+  .titulo-selecao { font-size: 1.4rem; }
+}
+
 /* ---- Menu principal maior no desktop ---- */
 @media (hover: hover) and (pointer: fine) {
   .menu-header {
