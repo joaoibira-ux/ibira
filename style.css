@@ -668,6 +668,38 @@ body.menu-body {
   color: #1a3a8f;
 }
 
+.romaneio-produto-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+.romaneio-produto-linha:last-child { border-bottom: none; }
+
+.romaneio-produto-nome { color: #1a1a2e; }
+
+.romaneio-produto-qtd {
+  font-weight: 700;
+  color: #1a3a8f;
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .romaneio-produto-linha {
+    padding: 12px 0;
+    font-size: 1.2rem;
+  }
+  .romaneio-produto-qtd {
+    font-size: 1.4rem;
+  }
+  #detalhe-overlay .detalhe-secao {
+    font-size: 1.3rem;
+  }
+}
+
 /* ---- Menu principal maior no desktop ---- */
 @media (hover: hover) and (pointer: fine) {
   .menu-header {

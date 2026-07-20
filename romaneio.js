@@ -154,9 +154,9 @@ function renderDetalhe() {
     <div class="detalhe-secao">Produtos para carregar</div>
     <div class="card">
       ${produtos.map(pr => `
-        <div class="pedido-item-linha">
-          <span>${escHtml(pr.produto_nome)}${pr.ud ? ` (${escHtml(pr.ud)})` : ""}</span>
-          <span>${pr.quantidade}${pr.peso > 0 ? ` · ${fmtPeso(pr.peso)}` : ""}</span>
+        <div class="romaneio-produto-linha">
+          <span class="romaneio-produto-nome">${escHtml(pr.produto_nome)}${pr.ud ? ` (${escHtml(pr.ud)})` : ""}</span>
+          <span class="romaneio-produto-qtd">${pr.quantidade}${pr.peso > 0 ? ` · ${fmtPeso(pr.peso)}` : ""}</span>
         </div>
       `).join("")}
     </div>
