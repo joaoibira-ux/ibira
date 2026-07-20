@@ -1,4 +1,4 @@
-const VERSAO_IBIRA = "1.62";
+const VERSAO_IBIRA = "1.63";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9zO5MO-lVAr6gea4t1pUuG-sC-s7stks",
@@ -23,6 +23,17 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).catch(() => {});
   });
   navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload());
+}
+
+if (!/iphone|ipad|ipod|android/i.test(navigator.userAgent)) {
+  const tentarFullscreen = () => {
+    const el = document.documentElement;
+    if (el.requestFullscreen && !document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
+    }
+  };
+  document.addEventListener("DOMContentLoaded", tentarFullscreen);
+  document.addEventListener("click", tentarFullscreen, true);
 }
 
 function escHtml(s) {
