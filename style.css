@@ -703,20 +703,25 @@ body.menu-body {
 /* ---- Menu principal maior no desktop ---- */
 @media (hover: hover) and (pointer: fine) {
   .menu-header {
-    padding: 28px 30px;
+    padding: 56px 60px;
+    gap: 24px;
   }
   .menu-logo {
-    width: 60px;
-    height: 60px;
+    width: 120px;
+    height: 120px;
   }
   .menu-title {
-    font-size: 1.3rem;
+    font-size: 2.6rem;
   }
   .menu-erp {
-    font-size: 0.7rem;
+    font-size: 1.4rem;
+    gap: 12px;
+  }
+  .menu-erp::before, .menu-erp::after {
+    width: 32px;
   }
   .menu-sub {
-    font-size: 0.7rem;
+    font-size: 1.4rem;
   }
   .apps-grid {
     grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
