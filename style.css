@@ -719,25 +719,28 @@ body.menu-body {
     font-size: 0.7rem;
   }
   .apps-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 24px 30px;
   }
   .app-card {
-    padding: 30px 26px;
-    flex-direction: row;
-    align-items: center;
-    gap: 18px;
+    padding: 28px 22px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
   .app-card.wide {
     grid-column: span 1;
+    flex-direction: column;
   }
   .app-icon {
-    font-size: 2.8rem;
+    font-size: 2.6rem;
   }
   .app-name {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
   }
   .app-desc {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 }
 
