@@ -77,6 +77,23 @@
       font-size: 0.75rem;
       color: #555;
     }
+
+    #app-frame {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      border: none;
+      background: #ffffff;
+    }
+    body.app-embutido #app-frame { display: block; }
+    body.app-embutido #aviso,
+    body.app-embutido .splash,
+    body.app-embutido .splash-versao {
+      display: none !important;
+    }
   </style>
 </head>
 <body class="splash-body">
@@ -109,7 +126,9 @@
   <a class="btn-entrar" href="./menu.html">Entrar</a>
 </div>
 
-<span id="versao-app" class="splash-versao">v1.64</span>
+<span id="versao-app" class="splash-versao">v1.65</span>
+
+<iframe id="app-frame" title="IBIRÁ ERP"></iframe>
 
 <script>
   var aviso = document.documentElement.dataset.aviso;
@@ -117,18 +136,28 @@
   if (aviso === 'android') document.getElementById('passo-android').style.display = 'block';
 
   var isMobileDevice = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
-  if (!isMobileDevice) {
-    var btnEntrar = document.querySelector('.btn-entrar');
-    if (btnEntrar) {
-      btnEntrar.addEventListener('click', function () {
-        var el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
-      });
-    }
+  var btnEntrar = document.querySelector('.btn-entrar');
+
+  if (!isMobileDevice && btnEntrar) {
+    // No PC a navegação acontece dentro de um iframe: a página de verdade
+    // (esta aqui) nunca sai do ar, então a tela cheia nunca é interrompida
+    // ao trocar de tela do sistema.
+    var frame = document.getElementById('app-frame');
+    frame.addEventListener('load', function () {
+      try { document.title = frame.contentDocument.title || document.title; } catch (e) {}
+    });
+
+    btnEntrar.addEventListener('click', function (e) {
+      e.preventDefault();
+      frame.src = btnEntrar.getAttribute('href');
+      document.body.classList.add('app-embutido');
+      var el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+    });
   }
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>

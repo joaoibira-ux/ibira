@@ -1,4 +1,4 @@
-const VERSAO_IBIRA = "1.64";
+const VERSAO_IBIRA = "1.65";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9zO5MO-lVAr6gea4t1pUuG-sC-s7stks",
@@ -25,7 +25,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload());
 }
 
-if (!/iphone|ipad|ipod|android/i.test(navigator.userAgent)) {
+if (window.self === window.top && !/iphone|ipad|ipod|android/i.test(navigator.userAgent)) {
   const tentarFullscreen = () => {
     const el = document.documentElement;
     if (el.requestFullscreen && !document.fullscreenElement) {
