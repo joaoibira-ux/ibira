@@ -22,6 +22,8 @@ function render(clientes) {
     if (c.latitude != null && c.longitude != null) {
       loc = `<a class="card-loc" target="_blank" href="https://www.google.com/maps?q=${c.latitude},${c.longitude}">📍 Ver localização no mapa</a>`;
     }
+    const tel1 = c.telefone1 || c.telefone || "";
+    const tel2 = c.telefone2 || "";
     return `
       <div class="card">
         <div class="card-acoes">
@@ -29,9 +31,14 @@ function render(clientes) {
           <button class="btn-del" onclick="excluirCliente('${c.id}')">🗑️</button>
         </div>
         <div class="card-nome">${escHtml(c.nome)}</div>
+        ${c.nomeFantasia ? `<div class="card-info">🏷️ ${escHtml(c.nomeFantasia)}</div>` : ""}
         ${c.cnpj ? `<div class="card-info">🏢 ${escHtml(c.cnpj)}</div>` : ""}
-        ${c.telefone ? `<div class="card-info">📞 ${escHtml(c.telefone)}</div>` : ""}
+        ${c.contato ? `<div class="card-info">👤 ${escHtml(c.contato)}</div>` : ""}
+        ${tel1 ? `<div class="card-info">📞 ${escHtml(tel1)}</div>` : ""}
+        ${tel2 ? `<div class="card-info">📞 ${escHtml(tel2)}</div>` : ""}
         ${c.endereco ? `<div class="card-info">🏠 ${escHtml(c.endereco)}</div>` : ""}
+        ${c.roteiro ? `<div class="card-info">🗺️ ${escHtml(c.roteiro)}</div>` : ""}
+        ${c.condicoesPagamento ? `<div class="card-info">💳 ${escHtml(c.condicoesPagamento)}</div>` : ""}
         ${loc}
         ${c.observacoes ? `<div class="card-obs">${escHtml(c.observacoes)}</div>` : ""}
       </div>
@@ -103,10 +110,12 @@ async function buscarCnpj() {
     const d = await res.json();
 
     const nome = d.razao_social || "";
+    const nomeFantasia = d.nome_fantasia || "";
     const partes = [d.logradouro, d.numero, d.complemento, d.bairro, d.municipio, d.uf].filter(Boolean);
     const endereco = partes.join(", ");
 
     if (nome) document.getElementById("f-nome").value = nome;
+    if (nomeFantasia) document.getElementById("f-nomefantasia").value = nomeFantasia;
     if (d.cep) {
       const cepNum = d.cep.replace(/\D/g, "");
       document.getElementById("f-cep").value = cepNum.slice(0,5) + (cepNum.length > 5 ? "-" + cepNum.slice(5) : "");
@@ -138,9 +147,14 @@ function abrirFormulario(id) {
     const c = clientesCache[clienteEditando];
     document.getElementById("f-cnpj").value = c.cnpj || "";
     document.getElementById("f-nome").value = c.nome || "";
-    document.getElementById("f-telefone").value = c.telefone || "";
+    document.getElementById("f-nomefantasia").value = c.nomeFantasia || "";
+    document.getElementById("f-contato").value = c.contato || "";
+    document.getElementById("f-telefone1").value = c.telefone1 || c.telefone || "";
+    document.getElementById("f-telefone2").value = c.telefone2 || "";
     document.getElementById("f-cep").value = c.cep || "";
     document.getElementById("f-endereco").value = c.endereco || "";
+    document.getElementById("f-roteiro").value = c.roteiro || "";
+    document.getElementById("f-condpagamento").value = c.condicoesPagamento || "";
     document.getElementById("f-obs").value = c.observacoes || "";
   } else {
     document.getElementById("form").reset();
@@ -155,14 +169,19 @@ function fecharFormulario() {
 
 async function salvarCliente() {
   const nome = document.getElementById("f-nome").value.trim();
-  if (!nome) { alert("Informe o nome do cliente"); return; }
+  if (!nome) { alert("Informe a razão social do cliente"); return; }
 
   const payload = {
     cnpj: document.getElementById("f-cnpj").value.trim(),
     nome,
-    telefone: document.getElementById("f-telefone").value.trim(),
+    nomeFantasia: document.getElementById("f-nomefantasia").value.trim(),
+    contato: document.getElementById("f-contato").value.trim(),
+    telefone1: document.getElementById("f-telefone1").value.trim(),
+    telefone2: document.getElementById("f-telefone2").value.trim(),
     cep: document.getElementById("f-cep").value.trim(),
     endereco: document.getElementById("f-endereco").value.trim(),
+    roteiro: document.getElementById("f-roteiro").value.trim(),
+    condicoesPagamento: document.getElementById("f-condpagamento").value.trim(),
     observacoes: document.getElementById("f-obs").value.trim()
   };
 
