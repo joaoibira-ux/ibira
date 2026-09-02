@@ -95,6 +95,7 @@ async function buscarCnpj() {
   const status = document.getElementById("cnpj-status");
   if (cnpj.length !== 14) return;
 
+  status.style.color = "#888";
   status.textContent = "Consultando CNPJ...";
   try {
     const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
@@ -111,10 +112,19 @@ async function buscarCnpj() {
       document.getElementById("f-cep").value = cepNum.slice(0,5) + (cepNum.length > 5 ? "-" + cepNum.slice(5) : "");
     }
     if (endereco) document.getElementById("f-endereco").value = endereco;
-    status.textContent = "Dados preenchidos automaticamente";
-    setTimeout(() => { status.textContent = ""; }, 3000);
+
+    const situacao = (d.descricao_situacao_cadastral || "").toUpperCase();
+    if (situacao && situacao !== "ATIVA") {
+      status.style.color = "#c62828";
+      status.textContent = `⚠️ CNPJ ${situacao}${d.descricao_motivo_situacao_cadastral ? " — " + d.descricao_motivo_situacao_cadastral : ""}`;
+    } else {
+      status.style.color = "#888";
+      status.textContent = "Dados preenchidos automaticamente";
+      setTimeout(() => { status.textContent = ""; }, 3000);
+    }
     return true;
   } catch {
+    status.style.color = "#888";
     status.textContent = "Erro ao consultar CNPJ";
   }
 }
