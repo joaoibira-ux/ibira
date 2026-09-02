@@ -1,4 +1,4 @@
-﻿const VERSION = "ibira-v72";
+﻿const VERSION = "ibira-v73";
 const ASSETS = [
   "./index.html",
   "./menu.html",
@@ -12,7 +12,7 @@ const ASSETS = [
   "./apagar.html",
   "./style.css?v=30",
   "./app.js?v=6",
-  "./clientes.js?v=8",
+  "./clientes.js?v=9",
   "./estoque.js?v=6",
   "./pedidos.js?v=5",
   "./romaneio.js?v=3",
