@@ -183,6 +183,13 @@ function abrirFormulario() {
   const select = document.getElementById("f-cliente");
   select.innerHTML = clientesCache.map(c => `<option value="${c.id}">${escHtml(c.nome)}</option>`).join("");
 
+  const selectFantasia = document.getElementById("f-nomefantasia");
+  selectFantasia.innerHTML = clientesCache.map(c => `<option value="${c.id}">${escHtml(c.nomeFantasia || c.nome)}</option>`).join("");
+
+  select.value = selectFantasia.value = clientesCache[0] ? clientesCache[0].id : "";
+  select.onchange = () => { selectFantasia.value = select.value; };
+  selectFantasia.onchange = () => { select.value = selectFantasia.value; };
+
   const container = document.getElementById("itens-container");
   container.innerHTML = "";
   if (produtosCache.length > 0) container.appendChild(criarLinhaItem());
