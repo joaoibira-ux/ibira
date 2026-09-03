@@ -52,7 +52,7 @@ function render(pedidos) {
     return `
       <div class="card" style="cursor:pointer" onclick="mostrarImpressao('${p.id}')">
         <div class="card-acoes">
-          <button class="btn-edit" onclick="event.stopPropagation(); abrirFormulario('${p.id}')">✏️</button>
+          ${p.status !== "Entregue" ? `<button class="btn-edit" onclick="event.stopPropagation(); abrirFormulario('${p.id}')">✏️</button>` : ""}
           <button class="btn-del" onclick="event.stopPropagation(); excluirPedido('${p.id}')">🗑️</button>
         </div>
         <div class="card-nome">
@@ -202,6 +202,12 @@ function recalcularTotal() {
 function abrirFormulario(id) {
   pedidoEditando = id || null;
   const pedido = pedidoEditando ? pedidosCache[pedidoEditando] : null;
+
+  if (pedido && pedido.status === "Entregue") {
+    alert("Pedidos entregues não podem ser editados");
+    pedidoEditando = null;
+    return;
+  }
 
   const select = document.getElementById("f-cliente");
   select.innerHTML = clientesCache.map(c => `<option value="${c.id}">${escHtml(c.nome)}</option>`).join("");
