@@ -4,6 +4,7 @@ const colClientes2 = db.collection("clientes");
 let clientesCache = [];
 let produtosCache = [];
 let pedidosCache = {};
+let pedidoEditando = null;
 
 colClientes2.orderBy("nome").onSnapshot(snap => {
   clientesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -51,6 +52,7 @@ function render(pedidos) {
     return `
       <div class="card" style="cursor:pointer" onclick="mostrarImpressao('${p.id}')">
         <div class="card-acoes">
+          <button class="btn-edit" onclick="event.stopPropagation(); abrirFormulario('${p.id}')">✏️</button>
           <button class="btn-del" onclick="event.stopPropagation(); excluirPedido('${p.id}')">🗑️</button>
         </div>
         <div class="card-nome">
@@ -140,7 +142,7 @@ function mostrarImpressao(id) {
   janela.document.close();
 }
 
-function criarLinhaItem() {
+function criarLinhaItem(itemExistente) {
   const opcoes = produtosCache.map(prod =>
     `<option value="${prod.id}" data-valor="${prod.valor}">${escHtml(prod.nome)} (${fmtMoeda(prod.valor)})</option>`
   ).join("");
@@ -149,11 +151,31 @@ function criarLinhaItem() {
   linha.className = "form-item-row";
   linha.innerHTML = `
     <select class="item-produto">${opcoes}</select>
+    <input type="number" step="0.01" min="0" class="item-valor" placeholder="Preço unit." />
     <input type="number" step="any" min="0" class="item-qtd" value="1" />
     <button type="button" class="btn-remove-item" onclick="removerItem(this)">✕</button>
   `;
-  linha.querySelector(".item-produto").addEventListener("change", recalcularTotal);
-  linha.querySelector(".item-qtd").addEventListener("input", recalcularTotal);
+  const selectProduto = linha.querySelector(".item-produto");
+  const inputValor = linha.querySelector(".item-valor");
+  const inputQtd = linha.querySelector(".item-qtd");
+
+  selectProduto.addEventListener("change", () => {
+    const opcao = selectProduto.options[selectProduto.selectedIndex];
+    inputValor.value = opcao ? opcao.dataset.valor : "";
+    recalcularTotal();
+  });
+  inputValor.addEventListener("input", recalcularTotal);
+  inputQtd.addEventListener("input", recalcularTotal);
+
+  if (itemExistente) {
+    selectProduto.value = itemExistente.produto_id;
+    inputValor.value = itemExistente.valor_unitario;
+    inputQtd.value = itemExistente.quantidade;
+  } else {
+    const opcaoInicial = selectProduto.options[selectProduto.selectedIndex];
+    inputValor.value = opcaoInicial ? opcaoInicial.dataset.valor : "";
+  }
+
   return linha;
 }
 
@@ -170,36 +192,42 @@ function removerItem(botao) {
 function recalcularTotal() {
   let total = 0;
   document.querySelectorAll("#itens-container .form-item-row").forEach(linha => {
-    const select = linha.querySelector(".item-produto");
-    const opcao = select.options[select.selectedIndex];
-    const valor = opcao ? parseFloat(opcao.dataset.valor) || 0 : 0;
+    const valor = parseFloat(linha.querySelector(".item-valor").value) || 0;
     const qtd = parseFloat(linha.querySelector(".item-qtd").value) || 0;
     total += valor * qtd;
   });
   document.getElementById("form-total").textContent = "Total: " + fmtMoeda(total);
 }
 
-function abrirFormulario() {
+function abrirFormulario(id) {
+  pedidoEditando = id || null;
+  const pedido = pedidoEditando ? pedidosCache[pedidoEditando] : null;
+
   const select = document.getElementById("f-cliente");
   select.innerHTML = clientesCache.map(c => `<option value="${c.id}">${escHtml(c.nome)}</option>`).join("");
 
   const selectFantasia = document.getElementById("f-nomefantasia");
   selectFantasia.innerHTML = clientesCache.map(c => `<option value="${c.id}">${escHtml(c.nomeFantasia || c.nome)}</option>`).join("");
 
-  select.value = selectFantasia.value = clientesCache[0] ? clientesCache[0].id : "";
+  select.value = selectFantasia.value = pedido ? pedido.cliente_id : (clientesCache[0] ? clientesCache[0].id : "");
   select.onchange = () => { selectFantasia.value = select.value; };
   selectFantasia.onchange = () => { select.value = selectFantasia.value; };
 
   const container = document.getElementById("itens-container");
   container.innerHTML = "";
-  if (produtosCache.length > 0) container.appendChild(criarLinhaItem());
+  if (pedido) {
+    (pedido.itens || []).forEach(item => container.appendChild(criarLinhaItem(item)));
+  } else if (produtosCache.length > 0) {
+    container.appendChild(criarLinhaItem());
+  }
 
-  document.getElementById("f-obs").value = "";
+  document.getElementById("f-obs").value = pedido ? (pedido.observacoes || "") : "";
   recalcularTotal();
   document.getElementById("form-overlay").style.display = "flex";
 }
 
 function fecharFormulario() {
+  pedidoEditando = null;
   document.getElementById("form-overlay").style.display = "none";
 }
 
@@ -210,6 +238,7 @@ async function salvarPedido() {
   const itensSelecionados = [];
   document.querySelectorAll("#itens-container .form-item-row").forEach(linha => {
     const produtoId = linha.querySelector(".item-produto").value;
+    const valorUnitario = parseFloat(linha.querySelector(".item-valor").value) || 0;
     const quantidade = parseFloat(linha.querySelector(".item-qtd").value) || 0;
     if (produtoId && quantidade > 0) {
       const prod = produtosCache.find(p => p.id === produtoId);
@@ -218,10 +247,10 @@ async function salvarPedido() {
           produto_id: produtoId,
           produto_nome: prod.nome,
           ud: prod.ud || null,
-          valor_unitario: prod.valor,
+          valor_unitario: valorUnitario,
           peso_unitario: prod.peso || 0,
           quantidade,
-          subtotal: prod.valor * quantidade
+          subtotal: valorUnitario * quantidade
         });
       }
     }
@@ -233,24 +262,47 @@ async function salvarPedido() {
   if (!cliente) { alert("Cliente não encontrado"); return; }
 
   const total = itensSelecionados.reduce((s, i) => s + i.subtotal, 0);
+  const observacoes = document.getElementById("f-obs").value.trim() || null;
 
-  const batch = db.batch();
-  const pedidoRef = colPedidos.doc();
-  batch.set(pedidoRef, {
-    cliente_id: clienteId,
-    cliente_nome: cliente.nome,
-    status: "Pendente",
-    total,
-    observacoes: document.getElementById("f-obs").value.trim() || null,
-    itens: itensSelecionados,
-    romaneio_id: null,
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  const deltaEstoque = {};
+  itensSelecionados.forEach(item => {
+    deltaEstoque[item.produto_id] = (deltaEstoque[item.produto_id] || 0) - item.quantidade;
   });
 
-  itensSelecionados.forEach(item => {
-    batch.update(colProdutos.doc(item.produto_id), {
-      estoque: firebase.firestore.FieldValue.increment(-item.quantidade)
+  const batch = db.batch();
+
+  if (pedidoEditando) {
+    const pedidoAnterior = pedidosCache[pedidoEditando];
+    (pedidoAnterior.itens || []).forEach(item => {
+      deltaEstoque[item.produto_id] = (deltaEstoque[item.produto_id] || 0) + item.quantidade;
     });
+    batch.update(colPedidos.doc(pedidoEditando), {
+      cliente_id: clienteId,
+      cliente_nome: cliente.nome,
+      total,
+      observacoes,
+      itens: itensSelecionados
+    });
+  } else {
+    const pedidoRef = colPedidos.doc();
+    batch.set(pedidoRef, {
+      cliente_id: clienteId,
+      cliente_nome: cliente.nome,
+      status: "Pendente",
+      total,
+      observacoes,
+      itens: itensSelecionados,
+      romaneio_id: null,
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  Object.keys(deltaEstoque).forEach(produtoId => {
+    if (deltaEstoque[produtoId] !== 0) {
+      batch.update(colProdutos.doc(produtoId), {
+        estoque: firebase.firestore.FieldValue.increment(deltaEstoque[produtoId])
+      });
+    }
   });
 
   await batch.commit();

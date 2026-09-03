@@ -340,7 +340,7 @@ body.menu-body {
 
 .form-item-row {
   display: grid;
-  grid-template-columns: 1fr 70px 36px;
+  grid-template-columns: 1fr 80px 60px 36px;
   gap: 6px;
   margin-bottom: 8px;
 }
@@ -734,13 +734,13 @@ body.menu-body {
     padding: 14px 16px;
   }
   .form-item-row {
-    grid-template-columns: 1fr 100px 46px;
-    gap: 10px;
+    grid-template-columns: 1fr 95px 85px 46px;
+    gap: 8px;
     margin-bottom: 12px;
   }
   .form-item-row select, .form-item-row input {
-    font-size: 1.2rem;
-    padding: 14px 16px;
+    font-size: 1.05rem;
+    padding: 14px 10px;
   }
   .btn-remove-item { font-size: 1.4rem; }
   .btn-add-item { font-size: 1.2rem; padding: 14px; }
